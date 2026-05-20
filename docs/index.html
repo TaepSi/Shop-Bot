@@ -3,185 +3,762 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShopBot — Telegram-витрина</title>
+
+    <title>ShopBot — Telegram-бот для магазина</title>
+
+    <meta name="description"
+          content="Современный Telegram-бот-витрина на Python и aiogram 3.x">
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body {
-            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-            color: #e0e0e0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Segoe UI',sans-serif;
         }
-        /* Геометричные фигуры на фоне */
-        .bg-shapes {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
+
+        body{
+            background:
+                radial-gradient(circle at top left,#453c8c 0%,transparent 30%),
+                radial-gradient(circle at bottom right,#7d4ba6 0%,transparent 25%),
+                linear-gradient(135deg,#0f0c29 0%,#181825 50%,#11111b 100%);
+
+            color:#f5f5f5;
+            overflow-x:hidden;
         }
-        .shape {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 0.08;
+
+        .container{
+            width:100%;
+            max-width:1150px;
+            margin:0 auto;
+            padding:0 20px;
         }
-        .shape:nth-child(1) {
-            width: 400px; height: 400px;
-            background: #cba6f7;
-            top: -100px; left: -100px;
-            animation: morph 8s infinite ease-in-out;
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        header{
+            padding:28px 0;
+            position:sticky;
+            top:0;
+            z-index:50;
+
+            backdrop-filter:blur(20px);
+
+            background:rgba(17,17,27,0.45);
+
+            border-bottom:
+                1px solid rgba(255,255,255,0.06);
         }
-        .shape:nth-child(2) {
-            width: 300px; height: 300px;
-            background: #89b4fa;
-            bottom: -50px; right: -80px;
-            animation: morph 10s infinite ease-in-out reverse;
+
+        .header-inner{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
         }
-        .shape:nth-child(3) {
-            width: 200px; height: 200px;
-            background: #f5c2e7;
-            top: 50%; left: 60%;
-            animation: morph 7s infinite ease-in-out;
+
+        .logo{
+            font-size:28px;
+            font-weight:800;
+            letter-spacing:-1px;
         }
-        .shape:nth-child(4) {
-            width: 150px; height: 150px;
-            background: #a6e3a1;
-            top: 20%; left: 10%;
-            animation: morph 9s infinite ease-in-out reverse;
+
+        .logo span{
+            background:
+                linear-gradient(
+                    135deg,
+                    #cba6f7 0%,
+                    #89b4fa 100%
+                );
+
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
         }
-        @keyframes morph {
-            0%, 100% { border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; }
-            25% { border-radius: 60% 40% 70% 30% / 40% 60% 30% 70%; }
-            50% { border-radius: 40% 60% 30% 70% / 60% 40% 70% 30%; }
-            75% { border-radius: 55% 45% 35% 65% / 45% 55% 65% 35%; }
+
+        .header-btn{
+            text-decoration:none;
+
+            color:#cba6f7;
+
+            border:1px solid rgba(203,166,247,0.3);
+
+            padding:12px 18px;
+
+            border-radius:14px;
+
+            transition:0.25s;
         }
-        /* Стеклянная карточка */
-        .card {
-            background: rgba(255,255,255,0.03);
-            backdrop-filter: blur(20px);
-            border-radius: 32px;
-            padding: 45px 35px;
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.08);
-            position: relative;
-            z-index: 1;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+
+        .header-btn:hover{
+            background:rgba(203,166,247,0.12);
         }
-        .icon {
-            font-size: 4em;
-            margin-bottom: 20px;
-            filter: drop-shadow(0 0 20px rgba(203, 166, 247, 0.6));
+
+        /* =========================
+           HERO
+        ========================= */
+
+        .hero{
+            padding:110px 0 90px;
+            position:relative;
         }
-        h1 {
-            font-size: 2.5em;
-            font-weight: 800;
-            background: linear-gradient(135deg, #cba6f7 0%, #89b4fa 50%, #f5c2e7 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 12px;
-            letter-spacing: -1px;
+
+        .hero::before{
+            content:"";
+
+            position:absolute;
+
+            width:600px;
+            height:600px;
+
+            background:#6c5ce7;
+
+            filter:blur(180px);
+
+            opacity:0.16;
+
+            top:-180px;
+            right:-120px;
+
+            z-index:-1;
         }
-        .subtitle {
-            color: #a0a0b8;
-            margin-bottom: 30px;
-            line-height: 1.7;
-            font-size: 1em;
+
+        .hero-grid{
+            display:grid;
+            grid-template-columns:1fr 420px;
+            gap:50px;
+            align-items:center;
         }
-        .features {
-            text-align: left;
-            background: rgba(255,255,255,0.03);
-            border-radius: 16px;
-            padding: 25px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(255,255,255,0.06);
-            display: grid;
-            gap: 12px;
+
+        .badge{
+            display:inline-block;
+
+            padding:10px 16px;
+
+            border-radius:999px;
+
+            background:rgba(203,166,247,0.12);
+
+            border:1px solid rgba(203,166,247,0.25);
+
+            color:#d7b8ff;
+
+            font-size:14px;
+
+            margin-bottom:25px;
         }
-        .features li {
-            list-style: none;
-            font-size: 0.95em;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+
+        h1{
+            font-size:72px;
+            line-height:1.05;
+            margin-bottom:25px;
+            letter-spacing:-3px;
         }
-        .features li::before {
-            content: "▹";
-            color: #cba6f7;
-            font-weight: bold;
-            font-size: 1.3em;
+
+        .hero-text{
+            color:#b8bcc8;
+
+            font-size:20px;
+
+            line-height:1.8;
+
+            max-width:650px;
+
+            margin-bottom:40px;
         }
-        .btn {
-            display: inline-block;
-            background: rgba(203, 166, 247, 0.15);
-            border: 2px solid #cba6f7;
-            color: #cba6f7;
-            padding: 15px 35px;
-            border-radius: 16px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 1.05em;
-            transition: all 0.3s;
-            margin: 8px;
-            backdrop-filter: blur(10px);
-            letter-spacing: 0.5px;
+
+        .buttons{
+            display:flex;
+            gap:15px;
+            flex-wrap:wrap;
         }
-        .btn:hover {
-            background: rgba(203, 166, 247, 0.3);
-            box-shadow: 0 0 30px rgba(203, 166, 247, 0.4);
-            transform: translateY(-2px);
+
+        .btn{
+            display:inline-flex;
+            justify-content:center;
+            align-items:center;
+
+            padding:16px 28px;
+
+            border-radius:18px;
+
+            text-decoration:none;
+
+            font-weight:700;
+
+            transition:0.25s;
         }
-        .btn-primary {
-            background: linear-gradient(135deg, #cba6f7 0%, #f5c2e7 100%);
-            border: none;
-            color: #1a1a2e;
+
+        .btn-primary{
+            background:
+                linear-gradient(
+                    135deg,
+                    #cba6f7 0%,
+                    #89b4fa 100%
+                );
+
+            color:#11111b;
         }
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #d4b0ff 0%, #ffd0f0 100%);
-            box-shadow: 0 0 40px rgba(203, 166, 247, 0.6);
+
+        .btn-primary:hover{
+            transform:translateY(-3px);
+
+            box-shadow:
+                0 12px 35px rgba(137,180,250,0.25);
         }
-        .footer {
-            margin-top: 25px;
-            color: #585b70;
-            font-size: 0.85em;
-            line-height: 1.6;
+
+        .btn-secondary{
+            border:1px solid rgba(255,255,255,0.08);
+
+            background:rgba(255,255,255,0.03);
+
+            color:white;
         }
+
+        .btn-secondary:hover{
+            background:rgba(255,255,255,0.06);
+        }
+
+        /* =========================
+           MOCKUP
+        ========================= */
+
+        .mockup{
+            background:
+                rgba(255,255,255,0.04);
+
+            border:
+                1px solid rgba(255,255,255,0.08);
+
+            border-radius:34px;
+
+            padding:20px;
+
+            backdrop-filter:blur(20px);
+
+            box-shadow:
+                0 25px 60px rgba(0,0,0,0.45);
+        }
+
+        .mockup-screen{
+            background:#11111b;
+
+            border-radius:24px;
+
+            padding:25px;
+        }
+
+        .tg-header{
+            display:flex;
+            align-items:center;
+            gap:12px;
+
+            margin-bottom:24px;
+        }
+
+        .avatar{
+            width:42px;
+            height:42px;
+
+            border-radius:50%;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #cba6f7,
+                    #89b4fa
+                );
+        }
+
+        .bubble{
+            background:#1e1e2e;
+
+            padding:14px 16px;
+
+            border-radius:18px;
+
+            margin-bottom:12px;
+
+            line-height:1.5;
+
+            color:#d9d9e3;
+        }
+
+        .bubble.purple{
+            background:
+                rgba(203,166,247,0.12);
+
+            border:
+                1px solid rgba(203,166,247,0.18);
+        }
+
+        /* =========================
+           FEATURES
+        ========================= */
+
+        .features{
+            padding:40px 0 110px;
+        }
+
+        .section-title{
+            font-size:46px;
+            margin-bottom:50px;
+            letter-spacing:-2px;
+        }
+
+        .features-grid{
+            display:grid;
+
+            grid-template-columns:
+                repeat(auto-fit,minmax(240px,1fr));
+
+            gap:22px;
+        }
+
+        .feature-card{
+            background:
+                rgba(255,255,255,0.03);
+
+            border:
+                1px solid rgba(255,255,255,0.06);
+
+            border-radius:28px;
+
+            padding:30px;
+
+            transition:0.25s;
+        }
+
+        .feature-card:hover{
+            transform:translateY(-6px);
+
+            border-color:
+                rgba(203,166,247,0.3);
+        }
+
+        .feature-icon{
+            font-size:34px;
+            margin-bottom:20px;
+        }
+
+        .feature-card h3{
+            margin-bottom:15px;
+            font-size:24px;
+        }
+
+        .feature-card p{
+            color:#b2b6c4;
+            line-height:1.7;
+        }
+
+        /* =========================
+           STACK
+        ========================= */
+
+        .stack{
+            padding-bottom:110px;
+        }
+
+        .stack-list{
+            display:flex;
+            flex-wrap:wrap;
+            gap:14px;
+        }
+
+        .stack-item{
+            padding:14px 20px;
+
+            border-radius:14px;
+
+            background:
+                rgba(255,255,255,0.04);
+
+            border:
+                1px solid rgba(255,255,255,0.08);
+
+            color:#d7dce5;
+        }
+
+        /* =========================
+           CTA
+        ========================= */
+
+        .cta{
+            padding-bottom:120px;
+        }
+
+        .cta-box{
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(203,166,247,0.12),
+                    rgba(137,180,250,0.12)
+                );
+
+            border:
+                1px solid rgba(255,255,255,0.08);
+
+            border-radius:34px;
+
+            padding:55px;
+
+            text-align:center;
+        }
+
+        .cta-box h2{
+            font-size:44px;
+            margin-bottom:18px;
+        }
+
+        .cta-box p{
+            color:#c2c7d4;
+            max-width:700px;
+            margin:0 auto 35px;
+            line-height:1.8;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        footer{
+            padding:40px 0;
+
+            border-top:
+                1px solid rgba(255,255,255,0.06);
+
+            text-align:center;
+
+            color:#73788a;
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media(max-width:950px){
+
+            .hero-grid{
+                grid-template-columns:1fr;
+            }
+
+            h1{
+                font-size:52px;
+            }
+
+            .mockup{
+                max-width:520px;
+            }
+        }
+
+        @media(max-width:600px){
+
+            h1{
+                font-size:42px;
+                letter-spacing:-2px;
+            }
+
+            .hero{
+                padding-top:80px;
+            }
+
+            .hero-text{
+                font-size:17px;
+            }
+
+            .section-title{
+                font-size:34px;
+            }
+
+            .cta-box{
+                padding:35px 25px;
+            }
+
+            .cta-box h2{
+                font-size:32px;
+            }
+
+            .btn{
+                width:100%;
+            }
+
+            .header-inner{
+                flex-direction:column;
+                gap:16px;
+            }
+        }
+
     </style>
 </head>
+
 <body>
-    <div class="bg-shapes">
-        <div class="shape"></div>
-        <div class="shape"></div>
-        <div class="shape"></div>
-        <div class="shape"></div>
+
+    <!-- HEADER -->
+
+    <header>
+
+        <div class="container header-inner">
+
+            <div class="logo">
+                Shop<span>Bot</span>
+            </div>
+
+            <a
+                href="https://kwork.ru/user/demurgas"
+                target="_blank"
+                class="header-btn"
+            >
+                Заказать разработку
+            </a>
+
+        </div>
+
+    </header>
+
+    <!-- HERO -->
+
+    <section class="hero">
+
+        <div class="container hero-grid">
+
+            <div>
+
+                <div class="badge">
+                    TELEGRAM STORE BOT • AIROGRAM 3.X
+                </div>
+
+                <h1>
+                    Telegram-бот<br>
+                    для магазина
+                </h1>
+
+                <p class="hero-text">
+                    Современный Telegram-бот-витрина
+                    с каталогом товаров, корзиной,
+                    оформлением заказов и демо-админкой.
+                    Готов к запуску на Render и VPS.
+                </p>
+
+                <div class="buttons">
+
+                    <a
+                        href="https://t.me/shopbottdemo_bot"
+                        target="_blank"
+                        class="btn btn-primary"
+                    >
+                        🤖 Открыть демо
+                    </a>
+
+                    <a
+                        href="https://kwork.ru/user/demurgas"
+                        target="_blank"
+                        class="btn btn-secondary"
+                    >
+                        💼 Заказать бота
+                    </a>
+
+                </div>
+
+            </div>
+
+            <!-- Mockup -->
+
+            <div class="mockup">
+
+                <div class="mockup-screen">
+
+                    <div class="tg-header">
+
+                        <div class="avatar"></div>
+
+                        <div>
+                            <strong>ShopBot</strong><br>
+                            <span style="color:#8f93a2;font-size:14px;">
+                                online
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <div class="bubble purple">
+                        Добро пожаловать в ShopBot!
+                    </div>
+
+                    <div class="bubble">
+                        🛍 Каталог<br>
+                        🛒 Корзина<br>
+                        📦 Оформить заказ
+                    </div>
+
+                    <div class="bubble purple">
+                        Товар добавлен в корзину!
+                    </div>
+
+                    <div class="bubble">
+                        Итого: 14 990 ₽
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- FEATURES -->
+
+    <section class="features">
+
+        <div class="container">
+
+            <h2 class="section-title">
+                Возможности
+            </h2>
+
+            <div class="features-grid">
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">🛍</div>
+
+                    <h3>Каталог</h3>
+
+                    <p>
+                        Просмотр товаров с фотографиями,
+                        описанием и ценами прямо
+                        внутри Telegram.
+                    </p>
+
+                </div>
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">🛒</div>
+
+                    <h3>Корзина</h3>
+
+                    <p>
+                        Пользователь может добавлять
+                        товары и оформлять заказ
+                        в несколько нажатий.
+                    </p>
+
+                </div>
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">⚡</div>
+
+                    <h3>Быстрый запуск</h3>
+
+                    <p>
+                        Бот полностью готов
+                        к деплою на Render,
+                        VPS или Docker.
+                    </p>
+
+                </div>
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">🛠</div>
+
+                    <h3>Демо-админка</h3>
+
+                    <p>
+                        Любой пользователь может
+                        протестировать управление
+                        магазином без доступа к БД.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- STACK -->
+
+    <section class="stack">
+
+        <div class="container">
+
+            <h2 class="section-title">
+                Технологии
+            </h2>
+
+            <div class="stack-list">
+
+                <div class="stack-item">Python</div>
+                <div class="stack-item">aiogram 3.x</div>
+                <div class="stack-item">SQLite</div>
+                <div class="stack-item">Flask</div>
+                <div class="stack-item">Render</div>
+                <div class="stack-item">Telegram Bot API</div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- CTA -->
+
+<section class="cta">
+
+    <div class="container">
+
+        <div class="cta-box">
+
+            <h2>
+                Протестируйте ShopBot
+            </h2>
+
+            <p>
+                Демо-версия Telegram-бота уже доступна.
+                Посмотрите каталог, корзину,
+                оформление заказа и демо-админку
+                прямо внутри Telegram.
+            </p>
+
+            <div class="buttons">
+
+                <a
+                    href="https://t.me/shopbottdemo_bot"
+                    target="_blank"
+                    class="btn btn-primary"
+                >
+                    🤖 Протестировать бота
+                </a>
+
+                <a
+                    href="https://kwork.ru/user/demurgas"
+                    target="_blank"
+                    class="btn btn-secondary"
+                >
+                    💼 Заказать похожего
+                </a>
+
+            </div>
+
+        </div>
+
     </div>
 
-    <div class="card">
-        <div class="icon">🛒</div>
-        <h1>ShopBot</h1>
-        <p class="subtitle">
-            Футуристичная Telegram-витрина для вашего магазина.<br>
-            Каталог, корзина, оформление заказа — всё внутри мессенджера.
-        </p>
-        <ul class="features">
-            <li>Каталог товаров с фото и ценами</li>
-            <li>Умная корзина с подсчётом итога</li>
-            <li>Оформление заказа в один клик</li>
-            <li>Мгновенные уведомления о новых заказах</li>
-            <li>Простая админ-панель для управления товарами</li>
-        </ul>
-        <a class="btn btn-primary" href="https://t.me/shopbottdemo_bot" target="_blank">🤖 Открыть демо-бота</a>
-        <a class="btn" href="https://kwork.ru/user/demurgas" target="_blank">💼 Заказать такого же</a>
-        <div class="footer">© 2026 ShopBot. Python + aiogram 3.x</div>
-    </div>
+</section>
+
+    <!-- FOOTER -->
+
+    <footer>
+
+        ShopBot © 2026<br>
+        Python + aiogram 3.x
+
+    </footer>
+
 </body>
 </html>
